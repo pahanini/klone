@@ -1,0 +1,19 @@
+name: build
+on:
+  push:
+    tags:
+      - '*'
+jobs:
+  release-osx:
+    runs-on: macos-latest
+    steps:
+      - name: install go
+        run: brew install go
+
+      - uses: actions/checkout@v4
+
+      - name: Build Release
+        run: go build
+
+      - name: test
+        run: ls -lah
