@@ -5,10 +5,10 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 
 	"github.com/gitsight/go-vcsurl"
-	"github.com/go-git/go-git/v5"
 	"github.com/urfave/cli/v3"
 )
 
@@ -33,16 +33,23 @@ func main() {
 			if err != nil {
 				return cli.Exit(err, 1)
 			}
-			path := filepath.Join(homeDir(), string(info.Host), info.Username, info.Name)
+
+			path := filepath.Join(homeDir(), string(info.Host), info.FullName)
 			fmt.Printf("cloning to %s\n", path)
 			err = os.MkdirAll(path, 0755)
 			if err != nil {
 				return cli.Exit(err, 1)
 			}
-			_, err = git.PlainClone(path, false, &git.CloneOptions{
-				URL:      url,
-				Progress: os.Stdout,
-			})
+
+			var execCmd *exec.Cmd
+			execCmd = exec.Command("git", "clone", url, path)
+			execCmd.Stdout = os.Stdout
+			execCmd.Stderr = os.Stderr
+			err = execCmd.Run()
+			if err != nil {
+				return cli.Exit(err, 1)
+			}
+
 			if err != nil {
 				return cli.Exit(err, 1)
 			}
